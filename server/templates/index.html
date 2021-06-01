@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>Budapest RE Price Estimate</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="app.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="{{ url_for('static', filename='./style.css') }}">
+  
+</head>
+
+<body style="background: #000;">
+ <div class="login">
+	<h1>Predict Budapest apartment prices</h1>
+
+     <!-- Main Input For Receiving Query to our ML -->
+    <form action="{{ url_for('predict')}}"method="post">
+    	<input type="text" name="District Nr." placeholder="District Nr." required="required" />
+        <input type="text" name="Size in SQM" placeholder="Size in SQM" required="required" />
+		<input type="text" name="Number of Rooms" placeholder="Number of Rooms" required="required" />
+        <button type="submit" class="btn btn-primary btn-block btn-large" id="predict">Predict the price of the apartment</button>
+    </form>
+
+   <br>
+   <br>
+   <div id="EstimatedPrice">
+   {{ prediction_text }}
+  </div>
+
+ </div>
+</body>
+</html>
+
