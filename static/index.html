@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Budapest Apartment Price Estimator</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 34rem;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      line-height: 1.5;
+    }
+    label { display: block; margin-top: 1rem; font-weight: 600; }
+    input, select, button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #888;
+    }
+    button { margin-top: 1.5rem; font-weight: 600; cursor: pointer; }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    #result { margin-top: 1.5rem; padding: 1rem; border-radius: 6px; background: #1b5e20; color: #fff; }
+    #error { margin-top: 1.5rem; padding: 1rem; border-radius: 6px; background: #b71c1c; color: #fff; }
+    .subtitle { color: #666; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Budapest Apartment Price Estimator</h1>
+    <p class="subtitle">Trained on ingatlan.com listings (2020–2021).</p>
+    <form id="estimate-form">
+      <label for="location">District</label>
+      <select id="location" name="location" required></select>
+
+      <label for="sqm">Size (m²)</label>
+      <input id="sqm" name="sqm" type="number" min="1" step="0.1" required placeholder="e.g. 61">
+
+      <label for="rooms">Rooms</label>
+      <input id="rooms" name="rooms" type="number" min="0" step="0.5" required placeholder="e.g. 2.5">
+
+      <button type="submit">Estimate price</button>
+    </form>
+    <div id="result" hidden></div>
+    <div id="error" hidden></div>
+  </main>
+  <script>
+    const form = document.getElementById("estimate-form");
+    const locationSelect = document.getElementById("location");
+    const sqmInput = document.getElementById("sqm");
+    const roomsInput = document.getElementById("rooms");
+    const result = document.getElementById("result");
+    const error = document.getElementById("error");
+    const submit = form.querySelector("button");
+
+    async function loadLocations() {
+      try {
+        const res = await fetch("/locations");
+        if (!res.ok) throw new Error(`Failed to load districts (${res.status})`);
+        const locations = await res.json();
+        for (const loc of locations) {
+          const opt = document.createElement("option");
+          opt.value = loc;
+          opt.textContent = loc === "other" ? "Other" : loc;
+          locationSelect.appendChild(opt);
+        }
+      } catch (err) {
+        error.textContent = `Error: ${err.message}`;
+        error.hidden = false;
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      error.hidden = true;
+      result.hidden = true;
+      submit.disabled = true;
+      submit.textContent = "Estimating…";
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            location: locationSelect.value,
+            sqm: parseFloat(sqmInput.value),
+            rooms: parseFloat(roomsInput.value),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const detail = typeof data.detail === "string"
+            ? data.detail
+            : JSON.stringify(data.detail);
+          throw new Error(detail || `Request failed (${res.status})`);
+        }
+        const huf = new Intl.NumberFormat("hu-HU").format(data.estimated_price_huf);
+        result.textContent = `Estimated price: ${huf} HUF (model ${data.model_version})`;
+        result.hidden = false;
+      } catch (err) {
+        error.textContent = `Error: ${err.message}`;
+        error.hidden = false;
+      } finally {
+        submit.disabled = false;
+        submit.textContent = "Estimate price";
+      }
+    });
+
+    loadLocations();
+  </script>
+</body>
+</html>
