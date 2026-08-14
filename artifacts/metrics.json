@@ -1,0 +1,15 @@
+{
+  "winner": "DecisionTreeRegressor",
+  "cv_r2": {
+    "LinearRegression": 0.4841475778052386,
+    "Lasso": 0.4841476231369198,
+    "DecisionTreeRegressor": 0.5477549548250809
+  },
+  "cv_mae": {
+    "LinearRegression": 3309055.284901409,
+    "Lasso": 3309057.022721164,
+    "DecisionTreeRegressor": 2933423.7279172214
+  },
+  "sklearn_version": "1.9.0",
+  "date": "2026-08-14"
+}
