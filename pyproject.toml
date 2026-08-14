@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ingatlan"
+version = "0.1.0"
+description = "Budapest apartment price estimation: cleaning pipeline, sklearn model, FastAPI microservice"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic>=2",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "joblib",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ingatlan"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.10.0",
+    "pytest",
+    "ruff",
+]
