@@ -18,13 +18,6 @@ dependencies = [
     "joblib",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "httpx",
-    "pytest",
-    "ruff",
-]
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/ingatlan"]
 
@@ -41,4 +34,6 @@ testpaths = ["tests"]
 [dependency-groups]
 dev = [
     "httpx2>=2.10.0",
+    "pytest",
+    "ruff",
 ]
